@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('vids', type=str, nargs='+', help="Input videos.")
-parser.add_argument('outPath', type=str, help="Output location.")
+parser.add_argument('--op', type=str, help="Output location.")
 args = parser.parse_args()
 
 for vid in args.vids:
@@ -14,14 +14,14 @@ for vid in args.vids:
     count = 0
 
     try:
-        os.mkdir(args.outPath)
+        os.mkdir(args.op)
     except OSError:
-        print ("Creation of the directory %s failed" % args.outPath)
+        print ("Creation of the directory %s failed" % args.op)
     else:
-        print ("Successfully created the directory %s " % args.outPath)
+        print ("Successfully created the directory %s " % args.op)
 
     while success:
-        cv2.imwrite(args.outPath + "/frame%d.jpg" % count, image)  
+        cv2.imwrite(args.op + "/frame%d.jpg" % count, image)  
         success,image = vidcap.read()
         print('Read a new frame: ', success)
         count += 1
