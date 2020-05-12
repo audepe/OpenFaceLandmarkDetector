@@ -6,11 +6,12 @@ import argparse
 import cv2
 import itertools
 import os
-
+import time
 import numpy as np
 np.set_printoptions(precision=2)
 import openface
 
+init_time = time.time()
 fileDir = '/root/openface'
 modelDir = os.path.join(fileDir, 'models')
 dlibModelDir = os.path.join(modelDir, 'dlib')
@@ -38,28 +39,36 @@ def getLandmarks(imgPath):
     bb = align.getLargestFaceBoundingBox(rgbImg)
     
     if bb is None:
-        raise Exception("Unable to find a face: {}".format(imgPath))
-
-    try:
-        os.mkdir(args.lp)
-    except OSError:
-        print ("Creation of the directory %s failed" % args.lp)
+        print("Unable to find a face: {}".format(imgPath))
     else:
-        print ("Successfully created the directory %s " % args.lp)
 
-    with open(args.lp + '/' + os.path.splitext(os.path.basename(imgPath))[0] + ".json", "w") as write_file:
-        json.dump(align.findLandmarks(rgbImg, bb), write_file)
-    
-    print("Landmarks extracted from: " + os.path.splitext(os.path.basename(imgPath))[0])
+        # if not os.path.isdir(args.lp):
+        #     try:
+        #         os.mkdir(args.lp)
+        #     except OSError:
+        #         print ("Creation of the directory %s failed" % args.lp)
+        #     else:
+        #         print ("Successfully created the directory %s " % args.lp)
 
-    alignedFace = align.align(imgDim, rgbImg, bb,
-                              landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+        alignedFace = align.align(imgDim, rgbImg, bb,
+                                landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
 
-    if alignedFace is None:
-        raise Exception("Unable to align image: {}".format(imgPath))
+        if alignedFace is None:
+            print("Unable to align image: {}".format(imgPath))
+            return ''
 
 
-    bb = align.getLargestFaceBoundingBox(alignedFace)
+        bb = align.getLargestFaceBoundingBox(alignedFace)
+        if bb is None:
+            print("Unable to find a face: {}".format(imgPath))
+        else:
+            with open(args.lp + '/' + os.path.splitext(os.path.basename(imgPath))[0] + ".json", "w") as write_file:
+                json.dump(align.findLandmarks(alignedFace, bb), write_file)
+        
+            print("Landmarks extracted from: " + os.path.splitext(os.path.basename(imgPath))[0])
 
 for img in args.imgs:
     getLandmarks(img)
+
+end_time = time.time()
+print('Hecho en :' + str(end_time - init_time)[:5]  +'s')

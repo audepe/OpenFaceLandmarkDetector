@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('vids', type=str, nargs='+', help="Input videos.")
-parser.add_argument('--op', type=str, help="Output location.")
+parser.add_argument('--op', type=str, required=True, help="Output location.")
 args = parser.parse_args()
 
 for vid in args.vids:
@@ -23,5 +23,4 @@ for vid in args.vids:
     while success:
         cv2.imwrite(args.op + "/frame%d.jpg" % count, image)  
         success,image = vidcap.read()
-        print('Read a new frame: ', success)
         count += 1
